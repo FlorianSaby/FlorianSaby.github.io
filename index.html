@@ -3,16 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cute Cat Chasing Mouse</title>
+<title>Cute Cat Chasing Mouse with GitHub Box</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
     background: #ffeedd; /* soft pastel background */
     cursor: default;
+    font-family: Arial, sans-serif;
   }
   canvas {
     display: block;
+  }
+  #githubBox {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+  #githubBox h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #333;
+  }
+  #githubBox a {
+    display: block;
+    font-size: 14px;
+    color: #0066cc;
+    text-decoration: none;
+    margin-bottom: 5px;
+  }
+  #githubBox a:hover {
+    text-decoration: underline;
   }
 </style>
 </head>
@@ -20,12 +46,29 @@
 
 <canvas id="catCanvas"></canvas>
 
+<div id="githubBox">
+  <h3>My GitHub Projects:</h3>
+  <a href="https://github.com/FlorianSaby/XAI-fiche" target="_blank">- Cheatsheet on XAI</a>
+  <a href="https://github.com/FlorianSaby/Formation-ML" target="_blank">- Deep Learning Course</a>
+</div>
+
 <script>
 const canvas = document.getElementById('catCanvas');
 const ctx = canvas.getContext('2d');
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+// Get the GitHub box position and size
+const githubBox = document.getElementById('githubBox');
+function getBoxRect() {
+  return {
+    x: canvas.width - githubBox.offsetWidth - 20,
+    y: canvas.height - githubBox.offsetHeight - 20,
+    width: githubBox.offsetWidth,
+    height: githubBox.offsetHeight
+  };
+}
 
 // Smooth virtual mouse with periodic velocity
 let virtualMouse = {
@@ -40,6 +83,8 @@ let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
 // Update mouse with periodic movement
 function updateVirtualMouse(time) {
+  const box = getBoxRect();
+
   // Periodic velocity using sine/cosine
   virtualMouse.vx = virtualMouse.baseVx + Math.sin(time * 0.002) * 1.5;
   virtualMouse.vy = virtualMouse.baseVy + Math.cos(time * 0.0025) * 1.5;
@@ -48,10 +93,18 @@ function updateVirtualMouse(time) {
   virtualMouse.y += virtualMouse.vy;
 
   // Bounce off edges
-  if (virtualMouse.x < 0) { virtualMouse.x = 0; virtualMouse.vx *= -1; }
-  if (virtualMouse.x > canvas.width) { virtualMouse.x = canvas.width; virtualMouse.vx *= -1; }
-  if (virtualMouse.y < 0) { virtualMouse.y = 0; virtualMouse.vy *= -1; }
-  if (virtualMouse.y > canvas.height) { virtualMouse.y = canvas.height; virtualMouse.vy *= -1; }
+  if (virtualMouse.x < 0) virtualMouse.x = 0;
+  if (virtualMouse.x > canvas.width) virtualMouse.x = canvas.width;
+  if (virtualMouse.y < 0) virtualMouse.y = 0;
+  if (virtualMouse.y > canvas.height) virtualMouse.y = canvas.height;
+
+  // Prevent mouse from entering GitHub box
+  if (virtualMouse.x > box.x && virtualMouse.x < box.x + box.width &&
+      virtualMouse.y > box.y && virtualMouse.y < box.y + box.height) {
+    // Push the mouse outside the box
+    if (virtualMouse.x - box.x < box.width / 2) virtualMouse.x = box.x - 5;
+    else virtualMouse.x = box.x + box.width + 5;
+  }
 }
 
 // Draw mouse
@@ -139,15 +192,24 @@ function animate(time) {
   updateVirtualMouse(time);
   drawVirtualMouse();
 
+  const box = getBoxRect();
+
   // Cat follows mouse but slows down near it
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
   let distance = Math.hypot(dx, dy);
 
-  // Cat speed decreases when close to mouse
-  let speed = Math.min(0.05, distance / 200); 
+  let speed = Math.min(0.05, distance / 200);
   cat.x += dx * speed;
   cat.y += dy * speed;
+
+  // Prevent cat from entering GitHub box
+  if (cat.x > box.x && cat.x < box.x + box.width &&
+      cat.y > box.y && cat.y < box.y + box.height) {
+    if (cat.x - box.x < box.width / 2) cat.x = box.x - 5;
+    else cat.x = box.x + box.width + 5;
+  }
+
   cat.angle = Math.atan2(dy, dx);
 
   // Periodic tail and ear movement
