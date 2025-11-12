@@ -59,7 +59,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Get the GitHub box position and size
+// GitHub box position and size
 const githubBox = document.getElementById('githubBox');
 function getBoxRect() {
   return {
@@ -70,16 +70,22 @@ function getBoxRect() {
   };
 }
 
-// Smooth virtual mouse with periodic velocity
-let virtualMouse = {
-  x: canvas.width/2,
-  y: canvas.height/2,
-  baseVx: 1.5,
-  baseVy: 1.5
-};
-
 // Cat object
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
+
+// Spawn mouse far from cat
+function spawnMouseFarFromCat(minDistance = 200) {
+  let x, y, dx, dy;
+  do {
+    x = Math.random() * canvas.width;
+    y = Math.random() * canvas.height;
+    dx = x - cat.x;
+    dy = y - cat.y;
+  } while (Math.hypot(dx, dy) < minDistance);
+  return { x, y, baseVx: 1.5, baseVy: 1.5 };
+}
+
+let virtualMouse = spawnMouseFarFromCat();
 
 // Update mouse with periodic movement + flee from cat
 function updateVirtualMouse(time) {
@@ -96,7 +102,7 @@ function updateVirtualMouse(time) {
 
   const fleeDistance = 150; // distance at which mouse starts fleeing
   if (distance < fleeDistance && distance > 0) {
-    let fleeStrength = (fleeDistance - distance) / fleeDistance * 5; // adjust speed
+    let fleeStrength = (fleeDistance - distance) / fleeDistance * 5;
     virtualMouse.vx += dx / distance * fleeStrength;
     virtualMouse.vy += dy / distance * fleeStrength;
   }
