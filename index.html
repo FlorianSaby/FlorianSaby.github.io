@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat Chasing Mouse</title>
+<title>Cute Cat Chasing Mouse</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
-    background: #1a1a1a; /* night background */
-    cursor: default; /* show cursor */
+    background: #ffeedd; /* soft pastel background */
+    cursor: default;
   }
   canvas {
     display: block;
@@ -27,97 +27,91 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Virtual mouse that moves randomly
+// Smooth virtual mouse movement
 let virtualMouse = {
   x: canvas.width/2,
   y: canvas.height/2,
-  dx: (Math.random()-0.5) * 4,
-  dy: (Math.random()-0.5) * 4
+  vx: 1 + Math.random()*2,
+  vy: 1 + Math.random()*2
 };
 
 // Cat object
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
-// Sparkle particles array
+// Sparkle particles
 let sparkles = [];
 
-// Function to update virtual mouse
+// Update mouse with smooth movement
 function updateVirtualMouse() {
-  virtualMouse.x += virtualMouse.dx;
-  virtualMouse.y += virtualMouse.dy;
+  virtualMouse.vx += (Math.random() - 0.5) * 0.2; 
+  virtualMouse.vy += (Math.random() - 0.5) * 0.2;
 
-  // Randomly change direction
-  if (Math.random() < 0.02) virtualMouse.dx = (Math.random()-0.5) * 4;
-  if (Math.random() < 0.02) virtualMouse.dy = (Math.random()-0.5) * 4;
+  const maxSpeed = 3;
+  virtualMouse.vx = Math.max(Math.min(virtualMouse.vx, maxSpeed), -maxSpeed);
+  virtualMouse.vy = Math.max(Math.min(virtualMouse.vy, maxSpeed), -maxSpeed);
+
+  virtualMouse.x += virtualMouse.vx;
+  virtualMouse.y += virtualMouse.vy;
 
   // Bounce off edges
-  if (virtualMouse.x < 0) { virtualMouse.x = 0; virtualMouse.dx *= -1; }
-  if (virtualMouse.x > canvas.width) { virtualMouse.x = canvas.width; virtualMouse.dx *= -1; }
-  if (virtualMouse.y < 0) { virtualMouse.y = 0; virtualMouse.dy *= -1; }
-  if (virtualMouse.y > canvas.height) { virtualMouse.y = canvas.height; virtualMouse.dy *= -1; }
+  if (virtualMouse.x < 0) { virtualMouse.x = 0; virtualMouse.vx *= -1; }
+  if (virtualMouse.x > canvas.width) { virtualMouse.x = canvas.width; virtualMouse.vx *= -1; }
+  if (virtualMouse.y < 0) { virtualMouse.y = 0; virtualMouse.vy *= -1; }
+  if (virtualMouse.y > canvas.height) { virtualMouse.y = canvas.height; virtualMouse.vy *= -1; }
 }
 
-// Function to draw the virtual mouse
+// Draw mouse
 function drawVirtualMouse() {
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#ffaaaa";
   ctx.beginPath();
-  ctx.arc(virtualMouse.x, virtualMouse.y, 5, 0, Math.PI*2);
+  ctx.arc(virtualMouse.x, virtualMouse.y, 6, 0, Math.PI*2);
   ctx.fill();
 }
 
-// Function to draw the cat
+// Draw cat
 function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
 
   // Cat body
-  ctx.fillStyle = "#000000"; 
+  ctx.fillStyle = "#cccccc"; 
   ctx.beginPath();
-  ctx.ellipse(0, 0, 40, 20, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, 35, 20, 0, 0, Math.PI*2);
   ctx.fill();
 
   // Cat head
   ctx.beginPath();
-  ctx.arc(45, 0, 15, 0, Math.PI * 2);
+  ctx.arc(45, 0, 15, 0, Math.PI*2);
   ctx.fill();
 
-  // Eyes follow virtual mouse
+  // Eyes
   let headX = x + Math.cos(angle) * 45;
   let headY = y + Math.sin(angle) * 45;
   let dx = virtualMouse.x - headX;
   let dy = virtualMouse.y - headY;
-  let dist = Math.min(Math.hypot(dx, dy), 100);
   let eyeAngle = Math.atan2(dy, dx);
-  let eyeDistance = Math.min(dist / 20, 5);
-  let pupilSize = 1 + (100 - dist)/25;
-  let eyeDx = Math.cos(eyeAngle) * eyeDistance;
-  let eyeDy = Math.sin(eyeAngle) * eyeDistance;
+  let eyeDistance = Math.min(Math.hypot(dx, dy)/15, 4);
 
-  // Eyes
-  ctx.fillStyle = "#ffff66";
-  ctx.shadowColor = "#ffff66";
-  ctx.shadowBlur = 10;
+  ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.arc(50 + eyeDx, -5 + eyeDy, 3, 0, Math.PI*2);
+  ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, -5 + Math.sin(eyeAngle)*eyeDistance, 5, 0, Math.PI*2);
   ctx.fill();
-  ctx.fillStyle = "#000000";
   ctx.beginPath();
-  ctx.arc(50 + eyeDx, -5 + eyeDy, pupilSize, 0, Math.PI*2);
+  ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, 5 + Math.sin(eyeAngle)*eyeDistance, 5, 0, Math.PI*2);
   ctx.fill();
 
-  ctx.fillStyle = "#ffff66";
-  ctx.beginPath();
-  ctx.arc(50 + eyeDx, 5 + eyeDy, 3, 0, Math.PI*2);
-  ctx.fill();
+  // Pupils
   ctx.fillStyle = "#000000";
   ctx.beginPath();
-  ctx.arc(50 + eyeDx, 5 + eyeDy, pupilSize, 0, Math.PI*2);
+  ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, -5 + Math.sin(eyeAngle)*eyeDistance, 2, 0, Math.PI*2);
   ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.beginPath();
+  ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, 5 + Math.sin(eyeAngle)*eyeDistance, 2, 0, Math.PI*2);
+  ctx.fill();
 
   // Ears
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#ffcccc";
   ctx.beginPath();
   ctx.moveTo(52, -7 + earTwitch);
   ctx.lineTo(58, -18 + earTwitch);
@@ -133,24 +127,24 @@ function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.fill();
 
   // Tail
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#ffcccc";
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(-40, 0);
   ctx.lineTo(-70, -10 + tailSwing);
   ctx.stroke();
 
-  // Tail tip sparkles
+  // Tail sparkles
   let tailTipX = x + (-70)*Math.cos(angle) - (-10 + tailSwing)*Math.sin(angle);
   let tailTipY = y + (-70)*Math.sin(angle) + (-10 + tailSwing)*Math.cos(angle);
-
-  if (Math.random() < 0.3) {
+  if (Math.random() < 0.4) {
     sparkles.push({
       x: tailTipX,
       y: tailTipY,
       radius: Math.random()*2 + 1,
       alpha: 1,
-      decay: Math.random()*0.03 + 0.01
+      decay: Math.random()*0.02 + 0.01,
+      color: `hsl(${Math.random()*360}, 80%, 70%)`
     });
   }
 
@@ -163,14 +157,14 @@ function drawSparkles() {
     let s = sparkles[i];
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(255,255,200,${s.alpha})`;
+    ctx.fillStyle = `rgba(${s.color ? s.color : '255,255,200'},${s.alpha})`;
     ctx.fill();
     s.alpha -= s.decay;
     if (s.alpha <= 0) sparkles.splice(i,1);
   }
 }
 
-// Variables for animation
+// Animation variables
 let tailDirection = 1;
 let tailAngle = 0;
 let earTwitch = 0;
@@ -178,19 +172,17 @@ let twitchDirection = 1;
 
 // Animation loop
 function animate() {
-  ctx.fillStyle = "rgba(26,26,26,0.3)";
+  ctx.fillStyle = "rgba(255,238,221,0.3)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // Update virtual mouse
   updateVirtualMouse();
   drawVirtualMouse();
 
-  // Cat movement
+  // Cat follows mouse slowly
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
-  let speed = 0.08 + Math.random()*0.05;
-  cat.x += dx * speed;
-  cat.y += dy * speed;
+  cat.x += dx * 0.05;
+  cat.y += dy * 0.05;
   cat.angle = Math.atan2(dy, dx);
 
   // Tail and ear animation
