@@ -27,28 +27,22 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Smooth virtual mouse movement
+// Smooth virtual mouse with periodic velocity
 let virtualMouse = {
   x: canvas.width/2,
   y: canvas.height/2,
-  vx: 1 + Math.random()*2,
-  vy: 1 + Math.random()*2
+  baseVx: 1.5,
+  baseVy: 1.5
 };
 
 // Cat object
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
-// Sparkle particles
-let sparkles = [];
-
-// Update mouse with smooth movement
-function updateVirtualMouse() {
-  virtualMouse.vx += (Math.random() - 0.5) * 0.2; 
-  virtualMouse.vy += (Math.random() - 0.5) * 0.2;
-
-  const maxSpeed = 3;
-  virtualMouse.vx = Math.max(Math.min(virtualMouse.vx, maxSpeed), -maxSpeed);
-  virtualMouse.vy = Math.max(Math.min(virtualMouse.vy, maxSpeed), -maxSpeed);
+// Update mouse with periodic movement
+function updateVirtualMouse(time) {
+  // Periodic velocity using sine/cosine
+  virtualMouse.vx = virtualMouse.baseVx + Math.sin(time * 0.002) * 1.5;
+  virtualMouse.vy = virtualMouse.baseVy + Math.cos(time * 0.0025) * 1.5;
 
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
@@ -69,7 +63,7 @@ function drawVirtualMouse() {
 }
 
 // Draw cat
-function drawCat(x, y, angle, tailSwing, earTwitch) {
+function drawCat(x, y, angle, tailAngle, earTwitch) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -131,73 +125,41 @@ function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(-40, 0);
-  ctx.lineTo(-70, -10 + tailSwing);
+  ctx.lineTo(-70, -10 + tailAngle);
   ctx.stroke();
-
-  // Tail sparkles
-  let tailTipX = x + (-70)*Math.cos(angle) - (-10 + tailSwing)*Math.sin(angle);
-  let tailTipY = y + (-70)*Math.sin(angle) + (-10 + tailSwing)*Math.cos(angle);
-  if (Math.random() < 0.4) {
-    sparkles.push({
-      x: tailTipX,
-      y: tailTipY,
-      radius: Math.random()*2 + 1,
-      alpha: 1,
-      decay: Math.random()*0.02 + 0.01,
-      color: `hsl(${Math.random()*360}, 80%, 70%)`
-    });
-  }
 
   ctx.restore();
 }
 
-// Draw sparkles
-function drawSparkles() {
-  for (let i = sparkles.length-1; i>=0; i--) {
-    let s = sparkles[i];
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(${s.color ? s.color : '255,255,200'},${s.alpha})`;
-    ctx.fill();
-    s.alpha -= s.decay;
-    if (s.alpha <= 0) sparkles.splice(i,1);
-  }
-}
-
-// Animation variables
-let tailDirection = 1;
-let tailAngle = 0;
-let earTwitch = 0;
-let twitchDirection = 1;
-
 // Animation loop
-function animate() {
+function animate(time) {
   ctx.fillStyle = "rgba(255,238,221,0.3)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  updateVirtualMouse();
+  updateVirtualMouse(time);
   drawVirtualMouse();
 
-  // Cat follows mouse slowly
+  // Cat follows mouse but slows down near it
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
-  cat.x += dx * 0.05;
-  cat.y += dy * 0.05;
+  let distance = Math.hypot(dx, dy);
+
+  // Cat speed decreases when close to mouse
+  let speed = Math.min(0.05, distance / 200); 
+  cat.x += dx * speed;
+  cat.y += dy * speed;
   cat.angle = Math.atan2(dy, dx);
 
-  // Tail and ear animation
-  tailAngle += 0.1 * tailDirection;
-  if (tailAngle > 10 || tailAngle < -10) tailDirection *= -1;
-  earTwitch += 0.2 * twitchDirection;
-  if (earTwitch > 3 || earTwitch < -3) twitchDirection *= -1;
+  // Periodic tail and ear movement
+  let tailAngle = Math.sin(time * 0.005) * 15;
+  let earTwitch = Math.cos(time * 0.007) * 3;
 
   drawCat(cat.x, cat.y, cat.angle, tailAngle, earTwitch);
-  drawSparkles();
 
   requestAnimationFrame(animate);
 }
 
-animate();
+animate(0);
 
 // Handle resize
 window.addEventListener('resize', () => {
