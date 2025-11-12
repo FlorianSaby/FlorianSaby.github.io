@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat and Mouse Zigzag Chase</title>
+<title>Cat and Mouse Bouncing Chase</title>
 <style>
   body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
   canvas { display:block; }
@@ -60,13 +60,13 @@ function spawnMouseFarFromCat(minDistance = 700) {
 }
 let virtualMouse = spawnMouseFarFromCat();
 
-// Mouse update with zigzag
+// Mouse update with zigzag and strong bounce
 function updateVirtualMouse(time){
   const box = getBoxRect();
-  const margin = 80;
   const fleeDistance = 700;  
   const personalSpace = 400; 
   const maxSpeed = 9;
+  const margin = 0; // edges for bouncing
 
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
@@ -80,7 +80,7 @@ function updateVirtualMouse(time){
     ay += (dy/distance)*fleeStrength;
   }
 
-  // Enforce hard personal space
+  // Enforce personal space
   if(distance < personalSpace && distance>0){
     ax += (dx/distance)*(personalSpace-distance)*0.6;
     ay += (dy/distance)*(personalSpace-distance)*0.6;
@@ -95,12 +95,6 @@ function updateVirtualMouse(time){
     ax += perpX * Math.sin(time*zigzagFrequency)*zigzagAmplitude;
     ay += perpY * Math.cos(time*zigzagFrequency)*zigzagAmplitude;
   }
-
-  // Canvas edges
-  if(virtualMouse.x<margin) ax+=(margin-virtualMouse.x)*0.08;
-  if(virtualMouse.x>canvas.width-margin) ax-=(virtualMouse.x-(canvas.width-margin))*0.08;
-  if(virtualMouse.y<margin) ay+=(margin-virtualMouse.y)*0.08;
-  if(virtualMouse.y>canvas.height-margin) ay-=(virtualMouse.y-(canvas.height-margin))*0.08;
 
   // GitHub box repulsion
   if(virtualMouse.x>box.x && virtualMouse.x<box.x+box.width &&
@@ -121,8 +115,15 @@ function updateVirtualMouse(time){
   let speed = Math.hypot(virtualMouse.vx, virtualMouse.vy);
   if(speed>maxSpeed){ virtualMouse.vx=(virtualMouse.vx/speed)*maxSpeed; virtualMouse.vy=(virtualMouse.vy/speed)*maxSpeed; }
 
+  // Move mouse
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
+
+  // Strong bounce off screen edges
+  if(virtualMouse.x < margin){ virtualMouse.x = margin; virtualMouse.vx *= -1.5; }
+  if(virtualMouse.x > canvas.width-margin){ virtualMouse.x = canvas.width-margin; virtualMouse.vx *= -1.5; }
+  if(virtualMouse.y < margin){ virtualMouse.y = margin; virtualMouse.vy *= -1.5; }
+  if(virtualMouse.y > canvas.height-margin){ virtualMouse.y = canvas.height-margin; virtualMouse.vy *= -1.5; }
 }
 
 // Draw mouse
@@ -186,7 +187,7 @@ function animate(time){
 
   const box = getBoxRect();
 
-  // Cat follows mouse but keeps very large separation
+  // Cat follows mouse but keeps separation
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
   let distance = Math.hypot(dx,dy);
