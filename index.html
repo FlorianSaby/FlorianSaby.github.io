@@ -8,7 +8,7 @@
   body {
     margin: 0;
     overflow: hidden;
-    background: #ffeedd; /* soft pastel background */
+    background: #ffeedd;
     cursor: default;
     font-family: Arial, sans-serif;
   }
@@ -59,7 +59,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// GitHub box position and size
+// GitHub box
 const githubBox = document.getElementById('githubBox');
 function getBoxRect() {
   return {
@@ -70,11 +70,11 @@ function getBoxRect() {
   };
 }
 
-// Cat object
+// Cat
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
-// Spawn mouse far from cat
-function spawnMouseFarFromCat(minDistance = 200) {
+// Spawn mouse far from cat (increase distance)
+function spawnMouseFarFromCat(minDistance = 350) {
   let x, y, dx, dy;
   do {
     x = Math.random() * canvas.width;
@@ -87,7 +87,7 @@ function spawnMouseFarFromCat(minDistance = 200) {
 
 let virtualMouse = spawnMouseFarFromCat();
 
-// Update mouse with periodic movement + flee from cat
+// Update mouse
 function updateVirtualMouse(time) {
   const box = getBoxRect();
 
@@ -95,42 +95,75 @@ function updateVirtualMouse(time) {
   virtualMouse.vx = virtualMouse.baseVx + Math.sin(time * 0.002) * 1.5;
   virtualMouse.vy = virtualMouse.baseVy + Math.cos(time * 0.0025) * 1.5;
 
-  // Flee from cat if too close
+  // Flee from cat
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
   let distance = Math.hypot(dx, dy);
-
-  const fleeDistance = 150; // distance at which mouse starts fleeing
+  const fleeDistance = 200;
   if (distance < fleeDistance && distance > 0) {
     let fleeStrength = (fleeDistance - distance) / fleeDistance * 5;
     virtualMouse.vx += dx / distance * fleeStrength;
     virtualMouse.vy += dy / distance * fleeStrength;
   }
 
-  // Update position
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
 
-  // Bounce off edges
+  // Bounce edges
   if (virtualMouse.x < 0) virtualMouse.x = 0;
   if (virtualMouse.x > canvas.width) virtualMouse.x = canvas.width;
   if (virtualMouse.y < 0) virtualMouse.y = 0;
   if (virtualMouse.y > canvas.height) virtualMouse.y = canvas.height;
 
-  // Prevent mouse from entering GitHub box
+  // Avoid GitHub box
   if (virtualMouse.x > box.x && virtualMouse.x < box.x + box.width &&
       virtualMouse.y > box.y && virtualMouse.y < box.y + box.height) {
-    if (virtualMouse.x - box.x < box.width / 2) virtualMouse.x = box.x - 5;
-    else virtualMouse.x = box.x + box.width + 5;
+    if (virtualMouse.x - box.x < box.width / 2) virtualMouse.x = box.x - 10;
+    else virtualMouse.x = box.x + box.width + 10;
   }
 }
 
-// Draw mouse
+// Draw improved mouse
 function drawVirtualMouse() {
-  ctx.fillStyle = "#ffaaaa";
+  ctx.save();
+  ctx.translate(virtualMouse.x, virtualMouse.y);
+
+  // Body
+  ctx.fillStyle = "#888888";
   ctx.beginPath();
-  ctx.arc(virtualMouse.x, virtualMouse.y, 6, 0, Math.PI*2);
+  ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI*2);
   ctx.fill();
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(14, 0, 6, 0, Math.PI*2);
+  ctx.fill();
+
+  // Ears
+  ctx.fillStyle = "#666666";
+  ctx.beginPath();
+  ctx.moveTo(16, -4);
+  ctx.lineTo(18, -10);
+  ctx.lineTo(12, -6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(16, 4);
+  ctx.lineTo(18, 10);
+  ctx.lineTo(12, 6);
+  ctx.closePath();
+  ctx.fill();
+
+  // Tail
+  ctx.strokeStyle = "#666666";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-12, 0);
+  ctx.lineTo(-22, -4);
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 // Draw cat
@@ -139,13 +172,13 @@ function drawCat(x, y, angle, tailAngle, earTwitch) {
   ctx.translate(x, y);
   ctx.rotate(angle);
 
-  // Cat body
+  // Body
   ctx.fillStyle = "#cccccc"; 
   ctx.beginPath();
   ctx.ellipse(0, 0, 35, 20, 0, 0, Math.PI*2);
   ctx.fill();
 
-  // Cat head
+  // Head
   ctx.beginPath();
   ctx.arc(45, 0, 15, 0, Math.PI*2);
   ctx.fill();
@@ -166,7 +199,6 @@ function drawCat(x, y, angle, tailAngle, earTwitch) {
   ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, 5 + Math.sin(eyeAngle)*eyeDistance, 5, 0, Math.PI*2);
   ctx.fill();
 
-  // Pupils
   ctx.fillStyle = "#000000";
   ctx.beginPath();
   ctx.arc(50 + Math.cos(eyeAngle)*eyeDistance, -5 + Math.sin(eyeAngle)*eyeDistance, 2, 0, Math.PI*2);
@@ -202,7 +234,7 @@ function drawCat(x, y, angle, tailAngle, earTwitch) {
   ctx.restore();
 }
 
-// Animation loop
+// Animate
 function animate(time) {
   ctx.fillStyle = "rgba(255,238,221,0.3)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -212,7 +244,7 @@ function animate(time) {
 
   const box = getBoxRect();
 
-  // Cat follows mouse but slows down near it
+  // Cat follows mouse
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
   let distance = Math.hypot(dx, dy);
@@ -221,7 +253,7 @@ function animate(time) {
   cat.x += dx * speed;
   cat.y += dy * speed;
 
-  // Prevent cat from entering GitHub box
+  // Avoid GitHub box
   if (cat.x > box.x && cat.x < box.x + box.width &&
       cat.y > box.y && cat.y < box.y + box.height) {
     if (cat.x - box.x < box.width / 2) cat.x = box.x - 5;
@@ -229,11 +261,8 @@ function animate(time) {
   }
 
   cat.angle = Math.atan2(dy, dx);
-
-  // Periodic tail and ear movement
   let tailAngle = Math.sin(time * 0.005) * 15;
   let earTwitch = Math.cos(time * 0.007) * 3;
-
   drawCat(cat.x, cat.y, cat.angle, tailAngle, earTwitch);
 
   requestAnimationFrame(animate);
@@ -241,7 +270,7 @@ function animate(time) {
 
 animate(0);
 
-// Handle resize
+// Resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
