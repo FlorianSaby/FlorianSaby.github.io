@@ -9,7 +9,7 @@
     margin: 0;
     overflow: hidden;
     background: #f0f0f0;
-    cursor: none; /* hide default cursor */
+    cursor: default; /* show default cursor */
   }
   canvas {
     display: block;
@@ -44,7 +44,7 @@ function drawCat(x, y, angle) {
   ctx.rotate(angle);
 
   // Cat body
-  ctx.fillStyle = "#FFA500"; // orange cat
+  ctx.fillStyle = "#000000"; // black cat
   ctx.beginPath();
   ctx.ellipse(0, 0, 40, 20, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -55,7 +55,7 @@ function drawCat(x, y, angle) {
   ctx.fill();
 
   // Ears
-  ctx.fillStyle = "#FF8C00";
+  ctx.fillStyle = "#000000";
   ctx.beginPath();
   ctx.moveTo(52, -7);
   ctx.lineTo(58, -18);
@@ -71,7 +71,7 @@ function drawCat(x, y, angle) {
   ctx.fill();
 
   // Tail
-  ctx.strokeStyle = "#FFA500";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(-40, 0);
