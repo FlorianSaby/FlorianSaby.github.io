@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magical Cat Tracker</title>
+<title>Enchanted Cat Tracker</title>
 <style>
   body {
     margin: 0;
@@ -31,6 +31,9 @@ canvas.height = window.innerHeight;
 let mouse = { x: canvas.width/2, y: canvas.height/2 };
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
+// Sparkle particles array
+let sparkles = [];
+
 // Update mouse position
 document.addEventListener('mousemove', e => {
   mouse.x = e.clientX;
@@ -54,17 +57,38 @@ function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.arc(45, 0, 15, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eyes (glowing yellow)
+  // Eyes follow cursor
+  let headX = x + Math.cos(angle) * 45;
+  let headY = y + Math.sin(angle) * 45;
+  let dx = mouse.x - headX;
+  let dy = mouse.y - headY;
+  let dist = Math.min(Math.hypot(dx, dy), 100);
+  let eyeAngle = Math.atan2(dy, dx);
+  let eyeDistance = Math.min(dist / 20, 5);
+  let pupilSize = 1 + (100 - dist) / 25;
+  let eyeDx = Math.cos(eyeAngle) * eyeDistance;
+  let eyeDy = Math.sin(eyeAngle) * eyeDistance;
+
   ctx.fillStyle = "#ffff66";
   ctx.shadowColor = "#ffff66";
   ctx.shadowBlur = 10;
   ctx.beginPath();
-  ctx.arc(50, -5, 3, 0, Math.PI * 2); // left eye
+  ctx.arc(50 + eyeDx, -5 + eyeDy, 3, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = "#000000";
   ctx.beginPath();
-  ctx.arc(50, 5, 3, 0, Math.PI * 2); // right eye
+  ctx.arc(50 + eyeDx, -5 + eyeDy, pupilSize, 0, Math.PI * 2);
   ctx.fill();
-  ctx.shadowBlur = 0; // reset shadow
+
+  ctx.fillStyle = "#ffff66";
+  ctx.beginPath();
+  ctx.arc(50 + eyeDx, 5 + eyeDy, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#000000";
+  ctx.beginPath();
+  ctx.arc(50 + eyeDx, 5 + eyeDy, pupilSize, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
 
   // Ears
   ctx.fillStyle = "#000000";
@@ -82,7 +106,7 @@ function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.closePath();
   ctx.fill();
 
-  // Tail (swinging)
+  // Tail
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 5;
   ctx.beginPath();
@@ -90,10 +114,38 @@ function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.lineTo(-70, -10 + tailSwing);
   ctx.stroke();
 
+  // Tail tip position for sparkles
+  let tailTipX = x + (-70) * Math.cos(angle) - (-10 + tailSwing) * Math.sin(angle);
+  let tailTipY = y + (-70) * Math.sin(angle) + (-10 + tailSwing) * Math.cos(angle);
+
+  // Add new sparkle occasionally
+  if (Math.random() < 0.3) {
+    sparkles.push({
+      x: tailTipX,
+      y: tailTipY,
+      radius: Math.random() * 2 + 1,
+      alpha: 1,
+      decay: Math.random() * 0.03 + 0.01
+    });
+  }
+
   ctx.restore();
 }
 
-// Variables for animation effects
+// Draw sparkles
+function drawSparkles() {
+  for (let i = sparkles.length - 1; i >= 0; i--) {
+    let s = sparkles[i];
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,200,${s.alpha})`;
+    ctx.fill();
+    s.alpha -= s.decay;
+    if (s.alpha <= 0) sparkles.splice(i, 1);
+  }
+}
+
+// Variables for animation
 let tailDirection = 1;
 let tailAngle = 0;
 let earTwitch = 0;
@@ -101,36 +153,32 @@ let twitchDirection = 1;
 
 // Animation loop
 function animate() {
-  // Draw fading trail
-  ctx.fillStyle = "rgba(26,26,26,0.3)"; // background with opacity
+  ctx.fillStyle = "rgba(26,26,26,0.3)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Calculate movement
+  // Cat movement
   let dx = mouse.x - cat.x;
   let dy = mouse.y - cat.y;
-
   let speed = 0.08 + Math.random() * 0.05;
   cat.x += dx * speed;
   cat.y += dy * speed;
-
   cat.angle = Math.atan2(dy, dx);
 
-  // Animate tail swinging
+  // Tail and ear animation
   tailAngle += 0.1 * tailDirection;
   if (tailAngle > 10 || tailAngle < -10) tailDirection *= -1;
-
-  // Animate ear twitching
   earTwitch += 0.2 * twitchDirection;
   if (earTwitch > 3 || earTwitch < -3) twitchDirection *= -1;
 
   drawCat(cat.x, cat.y, cat.angle, tailAngle, earTwitch);
+  drawSparkles();
 
   requestAnimationFrame(animate);
 }
 
 animate();
 
-// Handle window resize
+// Handle resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
