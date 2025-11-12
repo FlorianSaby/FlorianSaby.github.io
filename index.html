@@ -116,7 +116,7 @@ function updateMouse(time){
   const centerDy = centerY - mouse.y;
   const centerDist = Math.hypot(centerDx, centerDy);
   if(centerDist>0){
-    const centerStrength = 0.02; // adjust how strongly the mouse returns to center
+    const centerStrength = 0.3; // adjust how strongly the mouse returns to center
     ax += centerDx*centerStrength;
     ay += centerDy*centerStrength;
   }
