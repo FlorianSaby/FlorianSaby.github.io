@@ -1,12 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Follower</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #f0f0f0;
+      cursor: none; /* hide default cursor for fun */
+    }
+    #cat {
+      position: absolute;
+      width: 100px; /* adjust cat size */
+      height: 100px;
+      pointer-events: none; /* allows mouse to move freely */
+      transition: transform 0.1s linear; /* smooth movement */
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to My GitHub Page!</h1>
-    <p>This is my personal website.</p>
+  <!-- Cat image -->
+  <img id="cat" src="https://i.imgur.com/J5LVHEL.png" alt="Cat">
+  
+  <script>
+    const cat = document.getElementById('cat');
+
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX - cat.width / 2;
+      const y = e.clientY - cat.height / 2;
+      cat.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  </script>
 </body>
 </html>
+
