@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat and Mouse with Safe Distance</title>
+<title>Cat and Mouse Zigzag Chase</title>
 <style>
   body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
   canvas { display:block; }
@@ -32,10 +32,10 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// GitHub box repulsion
+// GitHub box safe zone
 const githubBox = document.getElementById('githubBox');
 function getBoxRect() {
-  const padding = 100; // bigger safe zone
+  const padding = 140; 
   return {
     x: canvas.width - githubBox.offsetWidth - 20 - padding,
     y: canvas.height - githubBox.offsetHeight - 20 - padding,
@@ -48,7 +48,7 @@ function getBoxRect() {
 let cat = { x: canvas.width/2, y: canvas.height/2, angle:0 };
 
 // Spawn mouse far from cat
-function spawnMouseFarFromCat(minDistance = 500) {
+function spawnMouseFarFromCat(minDistance = 700) {
   let x, y, dx, dy;
   do {
     x = Math.random() * canvas.width;
@@ -60,13 +60,13 @@ function spawnMouseFarFromCat(minDistance = 500) {
 }
 let virtualMouse = spawnMouseFarFromCat();
 
-// Mouse update
+// Mouse update with zigzag
 function updateVirtualMouse(time){
   const box = getBoxRect();
   const margin = 80;
-  const fleeDistance = 500;  // start fleeing earlier
-  const personalSpace = 250; // minimum distance from cat head
-  const maxSpeed = 7;
+  const fleeDistance = 700;  
+  const personalSpace = 400; 
+  const maxSpeed = 9;
 
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
@@ -75,15 +75,25 @@ function updateVirtualMouse(time){
 
   // Flee from cat
   if(distance < fleeDistance && distance>0){
-    let fleeStrength = Math.pow((fleeDistance-distance)/fleeDistance,2)*12;
+    let fleeStrength = Math.pow((fleeDistance-distance)/fleeDistance,2)*18;
     ax += (dx/distance)*fleeStrength;
     ay += (dy/distance)*fleeStrength;
   }
 
   // Enforce hard personal space
   if(distance < personalSpace && distance>0){
-    ax += (dx/distance)*(personalSpace-distance)*0.4;
-    ay += (dy/distance)*(personalSpace-distance)*0.4;
+    ax += (dx/distance)*(personalSpace-distance)*0.6;
+    ay += (dy/distance)*(personalSpace-distance)*0.6;
+  }
+
+  // Zigzag perpendicular oscillation
+  if(distance>0){
+    const perpX = -dy/distance;
+    const perpY = dx/distance;
+    const zigzagAmplitude = 4 + Math.random()*3;
+    const zigzagFrequency = 0.02;
+    ax += perpX * Math.sin(time*zigzagFrequency)*zigzagAmplitude;
+    ay += perpY * Math.cos(time*zigzagFrequency)*zigzagAmplitude;
   }
 
   // Canvas edges
@@ -102,10 +112,6 @@ function updateVirtualMouse(time){
     const dist=Math.hypot(dxBox,dyBox);
     if(dist>0){ ax+=(dxBox/dist)*6; ay+=(dyBox/dist)*6; }
   }
-
-  // Random jitter
-  ax += (Math.random()-0.5)*1.0;
-  ay += (Math.random()-0.5)*1.0;
 
   // Smooth velocity
   virtualMouse.vx = (virtualMouse.vx + ax)*0.94;
@@ -180,13 +186,13 @@ function animate(time){
 
   const box = getBoxRect();
 
-  // Cat follows mouse but keeps a minimum distance
+  // Cat follows mouse but keeps very large separation
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
   let distance = Math.hypot(dx,dy);
-  let minSeparation = 250; // cat will not get closer than this
+  let minSeparation = 400;
 
-  let speedFactor = Math.min(distance/100,2.5);
+  let speedFactor = Math.min(distance/100,2.0);
   if(distance > minSeparation){
     cat.x += dx*speedFactor*0.04;
     cat.y += dy*speedFactor*0.04;
