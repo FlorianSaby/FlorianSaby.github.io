@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat and Mouse Smooth Bounce</title>
+<title>Cat and Mouse Border Repulsion</title>
 <style>
   body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
   canvas { display:block; }
@@ -65,7 +65,7 @@ function updateVirtualMouse(time){
   const fleeDistance = 700;
   const personalSpace = 400;
   const maxSpeed = 9;
-  const edgeMargin = 0;
+  const longRepulsion = 150; // distance from edges for repulsion
 
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
@@ -95,14 +95,14 @@ function updateVirtualMouse(time){
     ay += perpY * Math.cos(time*zigzagFrequency)*zigzagAmplitude;
   }
 
-  // Repulsion from walls
-  const repulseStrength = 0.6;
-  if(virtualMouse.x < edgeMargin) ax += (edgeMargin - virtualMouse.x)*repulseStrength;
-  if(virtualMouse.x > canvas.width-edgeMargin) ax -= (virtualMouse.x - (canvas.width-edgeMargin))*repulseStrength;
-  if(virtualMouse.y < edgeMargin) ay += (edgeMargin - virtualMouse.y)*repulseStrength;
-  if(virtualMouse.y > canvas.height-edgeMargin) ay -= (virtualMouse.y - (canvas.height-edgeMargin))*repulseStrength;
+  // Long-distance repulsion from walls
+  const repulsionFactor = 0.05;
+  if(virtualMouse.x < longRepulsion) ax += (longRepulsion - virtualMouse.x) * repulsionFactor;
+  if(virtualMouse.x > canvas.width-longRepulsion) ax -= (virtualMouse.x - (canvas.width-longRepulsion)) * repulsionFactor;
+  if(virtualMouse.y < longRepulsion) ay += (longRepulsion - virtualMouse.y) * repulsionFactor;
+  if(virtualMouse.y > canvas.height-longRepulsion) ay -= (virtualMouse.y - (canvas.height-longRepulsion)) * repulsionFactor;
 
-  // Repulsion from GitHub box (smooth)
+  // Repulsion from GitHub box
   if(virtualMouse.x > box.x && virtualMouse.x < box.x+box.width &&
      virtualMouse.y > box.y && virtualMouse.y < box.y+box.height){
     const cx = box.x + box.width/2;
@@ -111,7 +111,7 @@ function updateVirtualMouse(time){
     const dyBox = virtualMouse.y - cy;
     const dist = Math.hypot(dxBox,dyBox);
     if(dist>0){
-      let rep = 6; // capped repulsion
+      let rep = 6;
       ax += (dxBox/dist)*rep;
       ay += (dyBox/dist)*rep;
     }
