@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canvas Cat Tracker</title>
+<title>Magical Cat Tracker</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
-    background: #f0f0f0;
-    cursor: default; /* show default cursor */
+    background: #1a1a1a; /* night background */
+    cursor: default; /* show cursor */
   }
   canvas {
     display: block;
@@ -37,14 +37,14 @@ document.addEventListener('mousemove', e => {
   mouse.y = e.clientY;
 });
 
-// Function to draw a simple cat
-function drawCat(x, y, angle) {
+// Function to draw the cat
+function drawCat(x, y, angle, tailSwing, earTwitch) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
 
   // Cat body
-  ctx.fillStyle = "#000000"; // black cat
+  ctx.fillStyle = "#000000"; 
   ctx.beginPath();
   ctx.ellipse(0, 0, 40, 20, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -54,50 +54,76 @@ function drawCat(x, y, angle) {
   ctx.arc(45, 0, 15, 0, Math.PI * 2);
   ctx.fill();
 
+  // Eyes (glowing yellow)
+  ctx.fillStyle = "#ffff66";
+  ctx.shadowColor = "#ffff66";
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(50, -5, 3, 0, Math.PI * 2); // left eye
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(50, 5, 3, 0, Math.PI * 2); // right eye
+  ctx.fill();
+  ctx.shadowBlur = 0; // reset shadow
+
   // Ears
   ctx.fillStyle = "#000000";
   ctx.beginPath();
-  ctx.moveTo(52, -7);
-  ctx.lineTo(58, -18);
-  ctx.lineTo(48, -12);
+  ctx.moveTo(52, -7 + earTwitch);
+  ctx.lineTo(58, -18 + earTwitch);
+  ctx.lineTo(48, -12 + earTwitch);
   ctx.closePath();
   ctx.fill();
 
   ctx.beginPath();
-  ctx.moveTo(52, 7);
-  ctx.lineTo(58, 18);
-  ctx.lineTo(48, 12);
+  ctx.moveTo(52, 7 - earTwitch);
+  ctx.lineTo(58, 18 - earTwitch);
+  ctx.lineTo(48, 12 - earTwitch);
   ctx.closePath();
   ctx.fill();
 
-  // Tail
+  // Tail (swinging)
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(-40, 0);
-  ctx.lineTo(-70, -10);
+  ctx.lineTo(-70, -10 + tailSwing);
   ctx.stroke();
 
   ctx.restore();
 }
 
+// Variables for animation effects
+let tailDirection = 1;
+let tailAngle = 0;
+let earTwitch = 0;
+let twitchDirection = 1;
+
 // Animation loop
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Draw fading trail
+  ctx.fillStyle = "rgba(26,26,26,0.3)"; // background with opacity
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Calculate movement
   let dx = mouse.x - cat.x;
   let dy = mouse.y - cat.y;
 
-  // Random delay factor for chasing effect
-  let speed = 0.05 + Math.random() * 0.1;
+  let speed = 0.08 + Math.random() * 0.05;
   cat.x += dx * speed;
   cat.y += dy * speed;
 
-  // Angle the cat should face
   cat.angle = Math.atan2(dy, dx);
 
-  drawCat(cat.x, cat.y, cat.angle);
+  // Animate tail swinging
+  tailAngle += 0.1 * tailDirection;
+  if (tailAngle > 10 || tailAngle < -10) tailDirection *= -1;
+
+  // Animate ear twitching
+  earTwitch += 0.2 * twitchDirection;
+  if (earTwitch > 3 || earTwitch < -3) twitchDirection *= -1;
+
+  drawCat(cat.x, cat.y, cat.angle, tailAngle, earTwitch);
 
   requestAnimationFrame(animate);
 }
