@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat and Mouse Smooth Movement</title>
+<title>Cat and Mouse Central Attraction</title>
 <style>
 body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
 canvas { display:block; }
@@ -107,6 +107,18 @@ function updateMouse(time){
       ax += (bx/d)*rep;
       ay += (by/d)*rep;
     }
+  }
+
+  // Attraction toward center
+  const centerX = canvas.width/2;
+  const centerY = canvas.height/2;
+  const centerDx = centerX - mouse.x;
+  const centerDy = centerY - mouse.y;
+  const centerDist = Math.hypot(centerDx, centerDy);
+  if(centerDist>0){
+    const centerStrength = 0.02; // adjust how strongly the mouse returns to center
+    ax += centerDx*centerStrength;
+    ay += centerDy*centerStrength;
   }
 
   // Smooth velocity
