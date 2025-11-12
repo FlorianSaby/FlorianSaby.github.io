@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cat Follower</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      background: #f0f0f0;
-      cursor: none; /* hide default cursor for fun */
-    }
-    #cat {
-      position: absolute;
-      width: 100px; /* adjust cat size */
-      height: 100px;
-      pointer-events: none; /* allows mouse to move freely */
-      transition: transform 0.1s linear; /* smooth movement */
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cat Follower with Random Delay</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: #f0f0f0;
+    cursor: none; /* hide default cursor */
+  }
+  #cat {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+  }
+</style>
 </head>
 <body>
-  <!-- Cat image -->
-  <img id="cat" src="https://i.imgur.com/J5LVHEL.png" alt="Cat">
-  
-  <script>
-    const cat = document.getElementById('cat');
 
-    document.addEventListener('mousemove', (e) => {
-      const x = e.clientX - cat.width / 2;
-      const y = e.clientY - cat.height / 2;
-      cat.style.transform = `translate(${x}px, ${y}px)`;
-    });
-  </script>
+<img id="cat" src="https://i.imgur.com/J5LVHEL.png" alt="Cat">
+
+<script>
+  const cat = document.getElementById('cat');
+
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let catX = mouseX;
+  let catY = mouseY;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function moveCat() {
+    // Calculate distance to mouse
+    const dx = mouseX - catX;
+    const dy = mouseY - catY;
+
+    // Random speed between 0.05 and 0.2 for delay effect
+    const speed = 0.05 + Math.random() * 0.15;
+
+    // Move cat toward mouse
+    catX += dx * speed;
+    catY += dy * speed;
+
+    cat.style.transform = `translate(${catX - cat.width / 2}px, ${catY - cat.height / 2}px)`;
+
+    requestAnimationFrame(moveCat);
+  }
+
+  moveCat();
+</script>
+
 </body>
 </html>
-
