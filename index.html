@@ -81,14 +81,27 @@ let virtualMouse = {
 // Cat object
 let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
 
-// Update mouse with periodic movement
+// Update mouse with periodic movement + flee from cat
 function updateVirtualMouse(time) {
   const box = getBoxRect();
 
-  // Periodic velocity using sine/cosine
+  // Base periodic movement
   virtualMouse.vx = virtualMouse.baseVx + Math.sin(time * 0.002) * 1.5;
   virtualMouse.vy = virtualMouse.baseVy + Math.cos(time * 0.0025) * 1.5;
 
+  // Flee from cat if too close
+  let dx = virtualMouse.x - cat.x;
+  let dy = virtualMouse.y - cat.y;
+  let distance = Math.hypot(dx, dy);
+
+  const fleeDistance = 150; // distance at which mouse starts fleeing
+  if (distance < fleeDistance && distance > 0) {
+    let fleeStrength = (fleeDistance - distance) / fleeDistance * 5; // adjust speed
+    virtualMouse.vx += dx / distance * fleeStrength;
+    virtualMouse.vy += dy / distance * fleeStrength;
+  }
+
+  // Update position
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
 
@@ -101,7 +114,6 @@ function updateVirtualMouse(time) {
   // Prevent mouse from entering GitHub box
   if (virtualMouse.x > box.x && virtualMouse.x < box.x + box.width &&
       virtualMouse.y > box.y && virtualMouse.y < box.y + box.height) {
-    // Push the mouse outside the box
     if (virtualMouse.x - box.x < box.width / 2) virtualMouse.x = box.x - 5;
     else virtualMouse.x = box.x + box.width + 5;
   }
