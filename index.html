@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cat and Mouse Bouncing Chase</title>
+<title>Cat and Mouse Smooth Bounce</title>
 <style>
   body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
   canvas { display:block; }
@@ -32,20 +32,19 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// GitHub box safe zone
-const githubBox = document.getElementById('githubBox');
-function getBoxRect() {
-  const padding = 140; 
-  return {
-    x: canvas.width - githubBox.offsetWidth - 20 - padding,
-    y: canvas.height - githubBox.offsetHeight - 20 - padding,
-    width: githubBox.offsetWidth + padding*2,
-    height: githubBox.offsetHeight + padding*2
-  };
-}
-
 // Cat setup
 let cat = { x: canvas.width/2, y: canvas.height/2, angle:0 };
+
+// GitHub box
+const githubBox = document.getElementById('githubBox');
+function getBoxRect() {
+  return {
+    x: canvas.width - githubBox.offsetWidth - 20,
+    y: canvas.height - githubBox.offsetHeight - 20,
+    width: githubBox.offsetWidth,
+    height: githubBox.offsetHeight
+  };
+}
 
 // Spawn mouse far from cat
 function spawnMouseFarFromCat(minDistance = 700) {
@@ -60,13 +59,13 @@ function spawnMouseFarFromCat(minDistance = 700) {
 }
 let virtualMouse = spawnMouseFarFromCat();
 
-// Mouse update with zigzag and strong bounce
+// Update mouse
 function updateVirtualMouse(time){
   const box = getBoxRect();
-  const fleeDistance = 700;  
-  const personalSpace = 400; 
+  const fleeDistance = 700;
+  const personalSpace = 400;
   const maxSpeed = 9;
-  const margin = 0; // edges for bouncing
+  const edgeMargin = 0;
 
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
@@ -80,13 +79,13 @@ function updateVirtualMouse(time){
     ay += (dy/distance)*fleeStrength;
   }
 
-  // Enforce personal space
+  // Personal space
   if(distance < personalSpace && distance>0){
     ax += (dx/distance)*(personalSpace-distance)*0.6;
     ay += (dy/distance)*(personalSpace-distance)*0.6;
   }
 
-  // Zigzag perpendicular oscillation
+  // Zigzag perpendicular
   if(distance>0){
     const perpX = -dy/distance;
     const perpY = dx/distance;
@@ -96,15 +95,26 @@ function updateVirtualMouse(time){
     ay += perpY * Math.cos(time*zigzagFrequency)*zigzagAmplitude;
   }
 
-  // GitHub box repulsion
-  if(virtualMouse.x>box.x && virtualMouse.x<box.x+box.width &&
-     virtualMouse.y>box.y && virtualMouse.y<box.y+box.height){
-    const cx=box.x+box.width/2;
-    const cy=box.y+box.height/2;
-    const dxBox=virtualMouse.x-cx;
-    const dyBox=virtualMouse.y-cy;
-    const dist=Math.hypot(dxBox,dyBox);
-    if(dist>0){ ax+=(dxBox/dist)*6; ay+=(dyBox/dist)*6; }
+  // Repulsion from walls
+  const repulseStrength = 0.6;
+  if(virtualMouse.x < edgeMargin) ax += (edgeMargin - virtualMouse.x)*repulseStrength;
+  if(virtualMouse.x > canvas.width-edgeMargin) ax -= (virtualMouse.x - (canvas.width-edgeMargin))*repulseStrength;
+  if(virtualMouse.y < edgeMargin) ay += (edgeMargin - virtualMouse.y)*repulseStrength;
+  if(virtualMouse.y > canvas.height-edgeMargin) ay -= (virtualMouse.y - (canvas.height-edgeMargin))*repulseStrength;
+
+  // Repulsion from GitHub box (smooth)
+  if(virtualMouse.x > box.x && virtualMouse.x < box.x+box.width &&
+     virtualMouse.y > box.y && virtualMouse.y < box.y+box.height){
+    const cx = box.x + box.width/2;
+    const cy = box.y + box.height/2;
+    const dxBox = virtualMouse.x - cx;
+    const dyBox = virtualMouse.y - cy;
+    const dist = Math.hypot(dxBox,dyBox);
+    if(dist>0){
+      let rep = 6; // capped repulsion
+      ax += (dxBox/dist)*rep;
+      ay += (dyBox/dist)*rep;
+    }
   }
 
   // Smooth velocity
@@ -113,17 +123,14 @@ function updateVirtualMouse(time){
 
   // Cap speed
   let speed = Math.hypot(virtualMouse.vx, virtualMouse.vy);
-  if(speed>maxSpeed){ virtualMouse.vx=(virtualMouse.vx/speed)*maxSpeed; virtualMouse.vy=(virtualMouse.vy/speed)*maxSpeed; }
+  if(speed>maxSpeed){
+    virtualMouse.vx = (virtualMouse.vx/speed)*maxSpeed;
+    virtualMouse.vy = (virtualMouse.vy/speed)*maxSpeed;
+  }
 
   // Move mouse
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
-
-  // Strong bounce off screen edges
-  if(virtualMouse.x < margin){ virtualMouse.x = margin; virtualMouse.vx *= -1.5; }
-  if(virtualMouse.x > canvas.width-margin){ virtualMouse.x = canvas.width-margin; virtualMouse.vx *= -1.5; }
-  if(virtualMouse.y < margin){ virtualMouse.y = margin; virtualMouse.vy *= -1.5; }
-  if(virtualMouse.y > canvas.height-margin){ virtualMouse.y = canvas.height-margin; virtualMouse.vy *= -1.5; }
 }
 
 // Draw mouse
