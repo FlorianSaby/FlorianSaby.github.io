@@ -3,47 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cute Cat Chasing Mouse with GitHub Box</title>
+<title>Cat and Mouse with Safe Distance</title>
 <style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: #ffeedd;
-    cursor: default;
-    font-family: Arial, sans-serif;
-  }
-  canvas {
-    display: block;
-  }
+  body { margin:0; overflow:hidden; background:#ffeedd; cursor:default; font-family:Arial,sans-serif; }
+  canvas { display:block; }
   #githubBox {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 300px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    position:absolute; bottom:20px; right:20px;
+    width:300px; padding:10px; background:rgba(255,255,255,0.9);
+    border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3);
   }
-  #githubBox h3 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    color: #333;
-  }
-  #githubBox a {
-    display: block;
-    font-size: 14px;
-    color: #0066cc;
-    text-decoration: none;
-    margin-bottom: 5px;
-  }
-  #githubBox a:hover {
-    text-decoration: underline;
-  }
+  #githubBox h3 { margin:0 0 5px 0; font-size:16px; color:#333; }
+  #githubBox a { display:block; font-size:14px; color:#0066cc; text-decoration:none; margin-bottom:5px; }
+  #githubBox a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
-
 <canvas id="catCanvas"></canvas>
 
 <div id="githubBox">
@@ -58,22 +32,22 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// GitHub box
+// GitHub box repulsion
 const githubBox = document.getElementById('githubBox');
 function getBoxRect() {
-  const padding = 90; // expanded repulsion area
+  const padding = 100; // bigger safe zone
   return {
     x: canvas.width - githubBox.offsetWidth - 20 - padding,
     y: canvas.height - githubBox.offsetHeight - 20 - padding,
-    width: githubBox.offsetWidth + padding * 2,
-    height: githubBox.offsetHeight + padding * 2
+    width: githubBox.offsetWidth + padding*2,
+    height: githubBox.offsetHeight + padding*2
   };
 }
 
 // Cat setup
-let cat = { x: canvas.width/2, y: canvas.height/2, angle: 0 };
+let cat = { x: canvas.width/2, y: canvas.height/2, angle:0 };
 
-// Spawn mouse far away
+// Spawn mouse far from cat
 function spawnMouseFarFromCat(minDistance = 500) {
   let x, y, dx, dy;
   do {
@@ -81,245 +55,166 @@ function spawnMouseFarFromCat(minDistance = 500) {
     y = Math.random() * canvas.height;
     dx = x - cat.x;
     dy = y - cat.y;
-  } while (Math.hypot(dx, dy) < minDistance);
-  return { x, y, vx: 0, vy: 0 };
+  } while (Math.hypot(dx,dy) < minDistance);
+  return { x, y, vx:0, vy:0 };
 }
 let virtualMouse = spawnMouseFarFromCat();
 
-// Update mouse motion
-function updateVirtualMouse(time) {
+// Mouse update
+function updateVirtualMouse(time){
   const box = getBoxRect();
   const margin = 80;
-  const fleeDistance = 450; // increased cat–mouse avoidance
-  const personalSpace = 200; // minimum gap between cat and mouse
+  const fleeDistance = 500;  // start fleeing earlier
+  const personalSpace = 250; // minimum distance from cat head
   const maxSpeed = 7;
+
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
-  let distance = Math.hypot(dx, dy);
-  let ax = 0, ay = 0;
+  let distance = Math.hypot(dx,dy);
+  let ax=0, ay=0;
 
-  // Flee from cat with strong repulsion
-  if (distance < fleeDistance && distance > 0) {
-    let fleeStrength = Math.pow((fleeDistance - distance) / fleeDistance, 2) * 10;
-    ax += (dx / distance) * fleeStrength;
-    ay += (dy / distance) * fleeStrength;
+  // Flee from cat
+  if(distance < fleeDistance && distance>0){
+    let fleeStrength = Math.pow((fleeDistance-distance)/fleeDistance,2)*12;
+    ax += (dx/distance)*fleeStrength;
+    ay += (dy/distance)*fleeStrength;
   }
 
-  // Enforce a hard personal space
-  if (distance < personalSpace && distance > 0) {
-    ax += (dx / distance) * (personalSpace - distance) * 0.3;
-    ay += (dy / distance) * (personalSpace - distance) * 0.3;
+  // Enforce hard personal space
+  if(distance < personalSpace && distance>0){
+    ax += (dx/distance)*(personalSpace-distance)*0.4;
+    ay += (dy/distance)*(personalSpace-distance)*0.4;
   }
 
-  // Edge repulsion
-  if (virtualMouse.x < margin) ax += (margin - virtualMouse.x) * 0.08;
-  if (virtualMouse.x > canvas.width - margin) ax -= (virtualMouse.x - (canvas.width - margin)) * 0.08;
-  if (virtualMouse.y < margin) ay += (margin - virtualMouse.y) * 0.08;
-  if (virtualMouse.y > canvas.height - margin) ay -= (virtualMouse.y - (canvas.height - margin)) * 0.08;
+  // Canvas edges
+  if(virtualMouse.x<margin) ax+=(margin-virtualMouse.x)*0.08;
+  if(virtualMouse.x>canvas.width-margin) ax-=(virtualMouse.x-(canvas.width-margin))*0.08;
+  if(virtualMouse.y<margin) ay+=(margin-virtualMouse.y)*0.08;
+  if(virtualMouse.y>canvas.height-margin) ay-=(virtualMouse.y-(canvas.height-margin))*0.08;
 
-  // Repel from GitHub box area
-  if (virtualMouse.x > box.x && virtualMouse.x < box.x + box.width &&
-      virtualMouse.y > box.y && virtualMouse.y < box.y + box.height) {
-    const cx = box.x + box.width / 2;
-    const cy = box.y + box.height / 2;
-    const dxBox = virtualMouse.x - cx;
-    const dyBox = virtualMouse.y - cy;
-    const dist = Math.hypot(dxBox, dyBox);
-    if (dist > 0) {
-      ax += (dxBox / dist) * 6;
-      ay += (dyBox / dist) * 6;
-    }
+  // GitHub box repulsion
+  if(virtualMouse.x>box.x && virtualMouse.x<box.x+box.width &&
+     virtualMouse.y>box.y && virtualMouse.y<box.y+box.height){
+    const cx=box.x+box.width/2;
+    const cy=box.y+box.height/2;
+    const dxBox=virtualMouse.x-cx;
+    const dyBox=virtualMouse.y-cy;
+    const dist=Math.hypot(dxBox,dyBox);
+    if(dist>0){ ax+=(dxBox/dist)*6; ay+=(dyBox/dist)*6; }
   }
 
-  // Random motion
-  ax += (Math.random() - 0.5) * 1.0;
-  ay += (Math.random() - 0.5) * 1.0;
+  // Random jitter
+  ax += (Math.random()-0.5)*1.0;
+  ay += (Math.random()-0.5)*1.0;
 
-  // Smooth motion
-  virtualMouse.vx = (virtualMouse.vx + ax) * 0.94;
-  virtualMouse.vy = (virtualMouse.vy + ay) * 0.94;
+  // Smooth velocity
+  virtualMouse.vx = (virtualMouse.vx + ax)*0.94;
+  virtualMouse.vy = (virtualMouse.vy + ay)*0.94;
 
   // Cap speed
-  const speed = Math.hypot(virtualMouse.vx, virtualMouse.vy);
-  if (speed > maxSpeed) {
-    virtualMouse.vx = (virtualMouse.vx / speed) * maxSpeed;
-    virtualMouse.vy = (virtualMouse.vy / speed) * maxSpeed;
-  }
+  let speed = Math.hypot(virtualMouse.vx, virtualMouse.vy);
+  if(speed>maxSpeed){ virtualMouse.vx=(virtualMouse.vx/speed)*maxSpeed; virtualMouse.vy=(virtualMouse.vy/speed)*maxSpeed; }
 
   virtualMouse.x += virtualMouse.vx;
   virtualMouse.y += virtualMouse.vy;
 }
 
-// Draw mouse (small and cute)
-function drawVirtualMouse() {
+// Draw mouse
+function drawVirtualMouse(){
   ctx.save();
-  ctx.translate(virtualMouse.x, virtualMouse.y);
-  const angle = Math.atan2(virtualMouse.vy, virtualMouse.vx);
+  ctx.translate(virtualMouse.x,virtualMouse.y);
+  const angle = Math.atan2(virtualMouse.vy,virtualMouse.vx);
   ctx.rotate(angle);
 
-  // Shadow
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.beginPath();
-  ctx.ellipse(2, 4, 12, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Body
-  ctx.fillStyle = "#777";
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Head
-  ctx.beginPath();
-  ctx.arc(14, 0, 6, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Ears
-  ctx.fillStyle = "#555";
-  ctx.beginPath();
-  ctx.moveTo(16, -4);
-  ctx.lineTo(19, -9);
-  ctx.lineTo(12, -6);
-  ctx.closePath();
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(16, 4);
-  ctx.lineTo(19, 9);
-  ctx.lineTo(12, 6);
-  ctx.closePath();
-  ctx.fill();
-
-  // Tail
-  ctx.strokeStyle = "#555";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(-12, 0);
-  ctx.lineTo(-24, Math.sin(Date.now() * 0.03) * 5);
-  ctx.stroke();
-
+  ctx.fillStyle="#777";
+  ctx.beginPath(); ctx.ellipse(0,0,12,8,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(14,0,6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#555";
+  ctx.beginPath(); ctx.moveTo(16,-4); ctx.lineTo(19,-9); ctx.lineTo(12,-6); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(16,4); ctx.lineTo(19,9); ctx.lineTo(12,6); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle="#555"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(-24,Math.sin(Date.now()*0.03)*5); ctx.stroke();
   ctx.restore();
 }
 
-// Draw cat (larger)
-function drawCat(x, y, angle, tailAngle, earTwitch) {
+// Draw cat
+function drawCat(x,y,angle,tailAngle,earTwitch){
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(x,y);
   ctx.rotate(angle);
 
-  // Shadow
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.beginPath();
-  ctx.ellipse(0, 15, 70, 25, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle="#cccccc"; ctx.beginPath(); ctx.ellipse(0,0,60,35,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(80,0,25,0,Math.PI*2); ctx.fill();
 
-  // Body
-  ctx.fillStyle = "#cccccc";
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 60, 35, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Head
-  ctx.beginPath();
-  ctx.arc(80, 0, 25, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Eyes
-  let headX = x + Math.cos(angle) * 80;
-  let headY = y + Math.sin(angle) * 80;
+  let headX = x + Math.cos(angle)*80;
+  let headY = y + Math.sin(angle)*80;
   let dx = virtualMouse.x - headX;
   let dy = virtualMouse.y - headY;
-  let eyeAngle = Math.atan2(dy, dx);
-  let eyeDistance = Math.min(Math.hypot(dx, dy) / 25, 6);
+  let eyeAngle = Math.atan2(dy,dx);
+  let eyeDistance = Math.min(Math.hypot(dx,dy)/25,6);
 
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.arc(90 + Math.cos(eyeAngle) * eyeDistance, -8 + Math.sin(eyeAngle) * eyeDistance, 7, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(90 + Math.cos(eyeAngle) * eyeDistance, 8 + Math.sin(eyeAngle) * eyeDistance, 7, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle="#ffffff";
+  ctx.beginPath(); ctx.arc(90+Math.cos(eyeAngle)*eyeDistance,-8+Math.sin(eyeAngle)*eyeDistance,7,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(90+Math.cos(eyeAngle)*eyeDistance,8+Math.sin(eyeAngle)*eyeDistance,7,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#000000";
+  ctx.beginPath(); ctx.arc(90+Math.cos(eyeAngle)*eyeDistance,-8+Math.sin(eyeAngle)*eyeDistance,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(90+Math.cos(eyeAngle)*eyeDistance,8+Math.sin(eyeAngle)*eyeDistance,3,0,Math.PI*2); ctx.fill();
 
-  ctx.fillStyle = "#000000";
-  ctx.beginPath();
-  ctx.arc(90 + Math.cos(eyeAngle) * eyeDistance, -8 + Math.sin(eyeAngle) * eyeDistance, 3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(90 + Math.cos(eyeAngle) * eyeDistance, 8 + Math.sin(eyeAngle) * eyeDistance, 3, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle="#ffcccc";
+  ctx.beginPath(); ctx.moveTo(85,-12+earTwitch); ctx.lineTo(97,-30+earTwitch); ctx.lineTo(72,-16+earTwitch); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(85,12-earTwitch); ctx.lineTo(97,30-earTwitch); ctx.lineTo(72,16-earTwitch); ctx.closePath(); ctx.fill();
 
-  // Ears
-  ctx.fillStyle = "#ffcccc";
-  ctx.beginPath();
-  ctx.moveTo(85, -12 + earTwitch);
-  ctx.lineTo(97, -30 + earTwitch);
-  ctx.lineTo(72, -16 + earTwitch);
-  ctx.closePath();
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(85, 12 - earTwitch);
-  ctx.lineTo(97, 30 - earTwitch);
-  ctx.lineTo(72, 16 - earTwitch);
-  ctx.closePath();
-  ctx.fill();
-
-  // Tail
-  ctx.strokeStyle = "#ffcccc";
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(-60, 0);
-  ctx.lineTo(-95, -20 + tailAngle);
-  ctx.stroke();
+  ctx.strokeStyle="#ffcccc"; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(-60,0); ctx.lineTo(-95,-20+tailAngle); ctx.stroke();
 
   ctx.restore();
 }
 
 // Animate
-function animate(time) {
-  ctx.fillStyle = "rgba(255,238,221,0.3)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function animate(time){
+  ctx.fillStyle="rgba(255,238,221,0.3)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   updateVirtualMouse(time);
   drawVirtualMouse();
 
   const box = getBoxRect();
 
-  // Cat follows mouse
+  // Cat follows mouse but keeps a minimum distance
   let dx = virtualMouse.x - cat.x;
   let dy = virtualMouse.y - cat.y;
-  let distance = Math.hypot(dx, dy);
+  let distance = Math.hypot(dx,dy);
+  let minSeparation = 250; // cat will not get closer than this
 
-  // Slow when close, capped top speed
-  let speedFactor = Math.min(distance / 100, 2.5);
-  cat.x += dx * speedFactor * 0.04;
-  cat.y += dy * speedFactor * 0.04;
-
-  // Avoid GitHub box
-  if (cat.x > box.x && cat.x < box.x + box.width &&
-      cat.y > box.y && cat.y < box.y + box.height) {
-    const cx = box.x + box.width / 2;
-    const cy = box.y + box.height / 2;
-    const dxBox = cat.x - cx;
-    const dyBox = cat.y - cy;
-    const dist = Math.hypot(dxBox, dyBox);
-    if (dist > 0) {
-      cat.x += (dxBox / dist) * 10;
-      cat.y += (dyBox / dist) * 10;
-    }
+  let speedFactor = Math.min(distance/100,2.5);
+  if(distance > minSeparation){
+    cat.x += dx*speedFactor*0.04;
+    cat.y += dy*speedFactor*0.04;
   }
 
-  cat.angle = Math.atan2(dy, dx);
-  let tailAngle = Math.sin(time * 0.005) * 20;
-  let earTwitch = Math.cos(time * 0.007) * 4;
-  drawCat(cat.x, cat.y, cat.angle, tailAngle, earTwitch);
+  // Avoid GitHub box
+  if(cat.x>box.x && cat.x<box.x+box.width && cat.y>box.y && cat.y<box.y+box.height){
+    const cx = box.x+box.width/2;
+    const cy = box.y+box.height/2;
+    const dxBox = cat.x-cx;
+    const dyBox = cat.y-cy;
+    const dist = Math.hypot(dxBox,dyBox);
+    if(dist>0){ cat.x += (dxBox/dist)*10; cat.y += (dyBox/dist)*10; }
+  }
+
+  cat.angle = Math.atan2(dy,dx);
+  let tailAngle = Math.sin(time*0.005)*20;
+  let earTwitch = Math.cos(time*0.007)*4;
+  drawCat(cat.x,cat.y,cat.angle,tailAngle,earTwitch);
 
   requestAnimationFrame(animate);
 }
 
 animate(0);
 
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+window.addEventListener('resize',()=>{
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
 });
 </script>
 </body>
