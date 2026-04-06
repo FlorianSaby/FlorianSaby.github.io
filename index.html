@@ -1,170 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Florian Saby | Project Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-main: #c9d1d9;
-            --accent-color: #58a6ff;
-            --border-color: #30363d;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        header h1 { color: #fff; margin-bottom: 10px; }
-        header p { color: #8b949e; font-size: 1.1rem; }
-
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        /* PROJECT CARD STYLE */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.2s, border-color 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-color);
-        }
-
-        .card h3 {
-            margin-top: 0;
-            color: var(--accent-color);
-        }
-
-        .card p {
-            font-size: 0.9rem;
-            color: #8b949e;
-        }
-
-        .tags {
-            margin: 10px 0;
-        }
-
-        .tag {
-            background: #21262d;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2px 10px;
-            font-size: 0.75rem;
-            margin-right: 5px;
-        }
-
-        .links {
-            margin-top: 15px;
-        }
-
-        .links a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-right: 15px;
-        }
-
-        .links a:hover { color: var(--accent-color); }
-
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            color: #8b949e;
-            font-size: 0.8rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Florian Saby | Project Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --text-main: #c9d1d9;
+      --accent-color: #58a6ff;
+      --border-color: #30363d;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    header h1 {
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    header p {
+      color: #8b949e;
+      font-size: 1.1rem;
+    }
+    header .links {
+      margin-top: 16px;
+    }
+    header .links a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.95rem;
+      margin: 0 12px;
+    }
+    header .links a:hover {
+      color: var(--accent-color);
+    }
+    .section-title {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8b949e;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-color);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent-color);
+    }
+    .card p {
+      font-size: 0.9rem;
+      color: #8b949e;
+      flex-grow: 1;
+    }
+    .tags {
+      margin: 10px 0;
+    }
+    .tag {
+      background: #21262d;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 0.75rem;
+      margin-right: 5px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .tag.python  { border-color: #3572A5; color: #79b8ff; }
+    .tag.jupyter { border-color: #DA5B0B; color: #ffa657; }
+    .tag.html    { border-color: #e34c26; color: #ffa07a; }
+    .tag.shell   { border-color: #89e051; color: #aff5b4; }
+    .links {
+      margin-top: 15px;
+    }
+    .links a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-right: 15px;
+    }
+    .links a:hover {
+      color: var(--accent-color);
+    }
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      color: #8b949e;
+      font-size: 0.8rem;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
 
-<div class="container">
     <header>
-        <h1>Florian Saby</h1>
-        <p>Software Engineer & Fullstack Developer</p>
-        <div class="links">
-            <a href="https://github.com/FlorianSaby"><i class="fab fa-github"></i> GitHub</a>
-            <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
-        </div>
+      <h1>Florian Saby</h1>
+      <p>AI/ML Engineer &amp; Researcher</p>
+      <div class="links">
+        <a href="https://github.com/FlorianSaby" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
+      </div>
     </header>
 
-    <section class="project-grid">
-        
-        <div class="card">
-            <div>
-                <h3>Conway's Life JS</h3>
-                <p>A sleek implementation of Conway's Game of Life using Vanilla JavaScript.</p>
-                <div class="tags">
-                    <span class="tag">JavaScript</span>
-                    <span class="tag">HTML5</span>
-                </div>
-            </div>
-            <div class="links">
-                <a href="https://github.com/FlorianSaby/Conway-s-Life-JS">View Code →</a>
-            </div>
-        </div>
+    <p class="section-title"><i class="fas fa-folder-open" style="margin-right:8px;"></i>Projects</p>
 
-        <div class="card">
-            <div>
-                <h3>RobotCraft Maze Solver</h3>
-                <p>ROS Nodes designed to solve complex mazes in simulation environments.</p>
-                <div class="tags">
-                    <span class="tag">C++</span>
-                    <span class="tag">ROS</span>
-                </div>
-            </div>
-            <div class="links">
-                <a href="https://github.com/FlorianSaby/robotcraft_maze_solver">View Code →</a>
-            </div>
-        </div>
+    <div class="project-grid">
 
-        <div class="card">
-            <div>
-                <h3>Future Project Name</h3>
-                <p>Short description of the amazing thing you are building next.</p>
-                <div class="tags">
-                    <span class="tag">TechStack</span>
-                </div>
-            </div>
-            <div class="links">
-                <a href="#">Coming Soon →</a>
-            </div>
+      <!-- VRAG for Biblio -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-eye" style="margin-right:8px;font-size:0.85em;"></i>VRAG for Biblio</h3>
+          <p>A Vision RAG pipeline with a web-based graphical interface built on <strong>Qwen2-VL</strong> and <strong>ColPali</strong>. Designed to index and query PDF document collections through visual embeddings, making document retrieval smarter and multimodal.</p>
+          <div class="tags">
+            <span class="tag python">Python</span>
+            <span class="tag">RAG</span>
+            <span class="tag">Multimodal AI</span>
+            <span class="tag">Gradio</span>
+          </div>
         </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/VRAG-for-Biblio" target="_blank"><i class="fab fa-github"></i> Source</a>
+        </div>
+      </div>
 
-    </section>
+      <!-- JZ LLM Inference Benchmark -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-tachometer-alt" style="margin-right:8px;font-size:0.85em;"></i>JZ LLM Inference Benchmark</h3>
+          <p>A benchmarking suite for measuring LLM inference performance on the <strong>Jean Zay</strong> HPC cluster (IDRIS). Tests LLaMA 3.1 (8B, 70B, 405B) across A100 and H100 GPUs using ShareGPT and Sonnet datasets, with automated result export to Excel.</p>
+          <div class="tags">
+            <span class="tag jupyter">Jupyter</span>
+            <span class="tag python">Python</span>
+            <span class="tag shell">Shell</span>
+            <span class="tag">LLaMA</span>
+            <span class="tag">HPC</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/JZ_LLM_Inference_Benchmark" target="_blank"><i class="fab fa-github"></i> Source</a>
+        </div>
+      </div>
+
+      <!-- Formation ML -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-brain" style="margin-right:8px;font-size:0.85em;"></i>Formation ML</h3>
+          <p>A collection of Jupyter notebooks covering core machine learning concepts and hands-on exercises. Serves as a practical ML training resource, exploring algorithms, model evaluation, and data processing techniques.</p>
+          <div class="tags">
+            <span class="tag jupyter">Jupyter</span>
+            <span class="tag python">Python</span>
+            <span class="tag">Machine Learning</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/Formation-ML" target="_blank"><i class="fab fa-github"></i> Source</a>
+        </div>
+      </div>
+
+      <!-- XAI Fiche -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-search" style="margin-right:8px;font-size:0.85em;"></i>XAI Fiche</h3>
+          <p>A reference sheet on <strong>Explainable AI (XAI)</strong> — summarizing key interpretability methods, tools, and techniques to make machine learning models more transparent and understandable.</p>
+          <div class="tags">
+            <span class="tag">XAI</span>
+            <span class="tag">Explainability</span>
+            <span class="tag">Documentation</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/XAI-fiche" target="_blank"><i class="fab fa-github"></i> Source</a>
+        </div>
+      </div>
+
+      <!-- Personal Website -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-globe" style="margin-right:8px;font-size:0.85em;"></i>Personal Website</h3>
+          <p>Florian's personal GitHub Pages site — a static web page built with HTML to present his work and profile online.</p>
+          <div class="tags">
+            <span class="tag html">HTML</span>
+            <span class="tag">GitHub Pages</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/FlorianSaby.github.io" target="_blank"><i class="fab fa-github"></i> Source</a>
+          <a href="https://floriansaby.github.io" target="_blank"><i class="fas fa-external-link-alt"></i> Live</a>
+        </div>
+      </div>
+
+      <!-- Flare MNIST -->
+      <div class="card">
+        <div>
+          <h3><i class="fas fa-network-wired" style="margin-right:8px;font-size:0.85em;"></i>Flare MNIST</h3>
+          <p>An experiment with <strong>NVFlare</strong> (federated learning framework) applied to the classic MNIST dataset. Explores how to train deep learning models in a federated, privacy-preserving setup across distributed clients.</p>
+          <div class="tags">
+            <span class="tag python">Python</span>
+            <span class="tag">Federated Learning</span>
+            <span class="tag">NVFlare</span>
+            <span class="tag">MNIST</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/FlorianSaby/Flare_mnist" target="_blank"><i class="fab fa-github"></i> Source</a>
+        </div>
+      </div>
+
+    </div>
 
     <footer>
-        <p>&copy; 2024 Florian Saby. Built with HTML/CSS.</p>
+      <p>Built from <a href="https://github.com/FlorianSaby" target="_blank" style="color: var(--accent-color);">GitHub data</a> &mdash; &copy; 2026 Florian Saby</p>
     </footer>
-</div>
 
+  </div>
 </body>
 </html>
